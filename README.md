@@ -32,7 +32,7 @@ Open `config.json` and complete the following details.
   }
   ```
 
-  **NOTE:** There are two separate keypairs for development and production environments.
+**NOTE:** There are two separate keypairs for development and production environments.
 
 2. Edit your Lisk connection details:
 
@@ -78,6 +78,24 @@ NODE_ENV=production node app.js
 ```
 
 Open: [http://localhost:6000](http://localhost:6000)
+
+## Functional tests
+
+According to the reCAPTCHA documentation, for testing purposes NoCAPTCHA can be used.
+
+https://developers.google.com/recaptcha/docs/faq#what-happens-to-recaptcha-v1
+  "With the following test keys, you will always get No CAPTCHA and all verification requests will pass."
+
+```
+Site key: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+Secret key: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+```
+
+The NoCAPTCHA keys will be activeted automatically during the tests.
+
+```
+npm test
+```
 
 ## Authors
 
