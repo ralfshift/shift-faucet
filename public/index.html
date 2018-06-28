@@ -30,27 +30,19 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="application-name" content="Lisk.io - Faucet"/>
         <meta name="msapplication-TileColor" content="#F3F3E1" />
-        <meta name="msapplication-TileImage" content="/img/mstile-144x144.png" />
-        <meta name="msapplication-square70x70logo" content="/img/mstile-70x70.png" />
-        <meta name="msapplication-square150x150logo" content="/img/mstile-150x150.png" />
-        <meta name="msapplication-wide310x150logo" content="/img/mstile-310x150.png" />
-        <meta name="msapplication-square310x310logo" content="/img/mstile-310x310.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/img/apple-touch-icon-57x57.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/img/apple-touch-icon-114x114.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/img/apple-touch-icon-72x72.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/apple-touch-icon-144x144.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="60x60" href="/img/apple-touch-icon-60x60.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/img/apple-touch-icon-120x120.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/img/apple-touch-icon-76x76.png" />
-        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/img/apple-touch-icon-152x152.png" />
-        <link rel="icon" type="image/png" href="/img/favicon-196x196.png" sizes="196x196" />
-        <link rel="icon" type="image/png" href="/img/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/png" href="/img/favicon-32x32.png" sizes="32x32" />
-        <link rel="icon" type="image/png" href="/img/favicon-16x16.png" sizes="16x16" />
-        <link rel="icon" type="image/png" href="/img/favicon-128.png" sizes="128x128" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+        <link rel="manifest" href="/img/site.webmanifest">
+        <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+        <link rel="shortcut icon" href="/img/favicon.ico">
+        <meta name="msapplication-TileColor" content="#00a300">
+        <meta name="msapplication-config" content="/img/browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
 
         <link rel="stylesheet" type="text/css" href="/css/animate.min.css">
         <link rel="stylesheet" type="text/css" href="/css/app.css">
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
 
         <script src="https://www.google.com/recaptcha/api.js?onload=vcRecapthaApiLoaded&render=explicit" async defer></script>
         <script type="text/javascript" src="/lib/angular.min.js"></script>
@@ -61,21 +53,21 @@
     <body ng-controller="mainController">
         <div class="main-block">
             <div class="logotype-block">
-                <p><a href="https://lisk.io/"><img src="/img/logo.png" alt="Lisk"></a></p>
+                <p><a href="https://lisk.io/"><img src="/img/logo.png" height="160" width="400" alt="Lisk"></a></p>
             </div>
             <div class="error fx-fade-down" ng-show="error">
                 <p><strong>Error:</strong> {{error}}</p>
             </div>
             <div class="txId fx-fade-down" ng-show="txId">
-                <p><strong>{{amount}} LSK sent, Transaction ID: </strong>{{txId}}</p>
+                <p><strong>{{amount}} LSK has been sent to your account.</p>
             </div>
             <div class="testnet-notice" ng-if="network == 'testnet'">
-              <p>This faucet is currently running on a testnet.<br>All payouts are for testing purposes only.</p>
+              <p>This faucet is currently running on a testnet.</p>
+              <p>All payouts are for testing purposes only.</p>
             </div>
             <div class="send-form">
                 <form class="form">
-                    <input type="text" ng-model="address" class="input" placeholder="Please enter your Lisk address to receive {{amount || 0}} LSK for free">
-                    <p class="msg">Don't have a Lisk address? Use our <a href="https://testnet.lisk.io/" target="_blank">web client</a> to create one!</p>
+                    <input type="text" ng-model="address" class="input" placeholder="Please enter your Lisk ID to receive {{amount || 0}} LSK for free">
                     <br>
                     <div recaptcha-custom></div>
                     <br>
