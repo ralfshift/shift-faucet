@@ -18,12 +18,11 @@ var reCaptchaModule = angular.module('reCaptchaModule', [])
     });
 
 angular.module("faucet", ['ngFx', 'vcRecaptcha', 'reCaptchaModule'])
-.controller("mainController", ["$rootScope", "$scope", "$http", "$timeout", "$interval", "vcRecaptchaService",
-    function ($rootScope, $scope, $http, $timeout, $interval, vcRecaptchaService) {
+    .controller("mainController", function ($scope, $http, vcRecaptchaService) {
         $scope.getBase = function () {
             $scope.error = null;
 
-            $http.get("/api/getBase").then(function (resp) {
+            return $http.get("/api/getBase").then(function (resp) {
                 $scope.error = null;
 
                 if (resp.data && resp.data.success) {
@@ -34,7 +33,6 @@ angular.module("faucet", ['ngFx', 'vcRecaptcha', 'reCaptchaModule'])
                     $scope.captchaKey = resp.data.captchaKey;
                     $scope.totalCount = resp.data.totalCount;
                     $scope.network = resp.data.network;
-                    $scope.$broadcast('captchaPublicKeyUpdate', { captchaPublicKey: resp.data.captchaKey });
                 } else {
                     $scope.blockHideForm = true;
                     if (resp.data && resp.data.error) {
@@ -69,14 +67,12 @@ angular.module("faucet", ['ngFx', 'vcRecaptcha', 'reCaptchaModule'])
                     } else {
                         $scope.error = "Faucet node is offline, please try again later";
                     }
-
                     vcRecaptchaService.reload();
                 }
             });
         }
 
-        $scope.getBase();
-        $interval(function () {
-            $scope.getBase();
-        }, 60000);
-    }]);
+        $scope.getBase().then(function() {
+            $scope.$broadcast('captchaPublicKeyUpdate', { captchaPublicKey: $scope.captchaKey });
+        });
+    });
