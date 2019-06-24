@@ -49,9 +49,9 @@ angular.module("faucet", ['ngFx', 'vcRecaptcha', 'reCaptchaModule'])
             $scope.txId = null;
             $scope.loading = true;
 
-            $http.post("/api/sendLisk", {
+            $http.post("/api/sendShift", {
                 address : $scope.address,
-                captcha : vcRecaptchaService.getResponse()
+                captcha_response : vcRecaptchaService.getResponse()
             }).then(function (resp) {
                 $scope.loading = false;
                 $scope.error = null;

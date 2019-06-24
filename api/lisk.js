@@ -1,29 +1,34 @@
 const request = require('request'),
       async = require('async'),
       simple_recaptcha = require('simple-recaptcha'),
-      lisk = require('lisk-elements').default;
+      lisk = require('shift-js');
 
 module.exports = function (app) {
     app.get("/api/getBase", function (req, res) {
-        const apiClient = new lisk.APIClient(
-            [ req.lisk ]
-        );
-
         async.series([
-            function (cb) {
-                apiClient.accounts.get({ address: app.locals.address }).then(accounts => {
-                    cb(null, accounts.data[0].unconfirmedBalance);
-                }).catch(err => {
-                    cb("Failed to get faucet balance");
+            function (cb) { 
+                request({
+                    url : req.lisk + "/api/accounts?address=" + app.locals.address,
+                    json : true
+                }, function (error, resp, body) {
+                    if (error || resp.statusCode != 200 || !body.success) {
+                        return cb("Failed to get faucet balance");
+                    } else {
+                        return cb(null, body.unconfirmedBalance);
+                    }
                 });
             },
             function (cb) {
-                apiClient.node.getConstants()
-                    .then(constants => {
-                        cb(null, constants.data.fees.send);
-                    }).catch(err => {
-                        cb("Failed to establish transaction fee");
-                    });
+                request({
+                    url : req.lisk + "/api/blocks/getFee",
+                    json : true
+                }, function (error, resp, body) {
+                    if (error || resp.statusCode != 200 || !body.success) {
+                        return cb("Failed to establish transaction fee");
+                    } else {
+                        return cb(null, body.fee);
+                    }
+                });
             }
         ], function (error, result) {
             if (error) {
@@ -46,31 +51,31 @@ module.exports = function (app) {
                     amount : app.locals.amountToSend,
                     donation_address : app.locals.address,
                     totalCount : app.locals.totalCount,
-                    network : app.set("lisk network")
+                    network : app.set("shift network")
                 });
             }
         });
     });
 
-    app.post("/api/sendLisk", function (req, res) {
+    app.post("/api/sendShift", function (req, res) {
         var error = null,
             address = req.body.address,
-            captcha_response = req.body.captcha,
+            captcha_response = req.body.captcha_response,
             ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-        if (!address) { error = "Missing Lisk ID"; }
+        if (!address) { error = "Missing Shift address"; }
 
         if (!captcha_response) { error = "Captcha validation failed, please try again"; }
 
         if (address) {
             address = address.trim();
 
-            if (address.indexOf('L') != address.length - 1 && address.indexOf('D') != address.length - 1) {
-                error = "Invalid Lisk ID";
+            if (address.indexOf('S') != address.length - 1) {
+                error = "Invalid Shift address";
             }
 
             var num = address.substring(0, address.length - 1);
-            if (isNaN(num)) { error = "Invalid Lisk ID"; }
+            if (isNaN(num)) { error = "Invalid Shift address"; }
         }
 
         if (error) {
@@ -83,7 +88,7 @@ module.exports = function (app) {
                     if (error) {
                         return cb("Failed to authenticate IP address");
                     } else if (value) {
-                        return cb("This IP address has already received LSK");
+                        return cb("This IP address has already received SHIFT");
                     } else {
                         return cb(null);
                     }
@@ -92,9 +97,9 @@ module.exports = function (app) {
             authenticateAddress : function (cb) {
                 req.redis.get(address, function (error, value) {
                     if (error) {
-                        return cb("Failed to authenticate Lisk ID");
+                        return cb("Failed to authenticate Shift address");
                     } else if (value) {
-                        return cb("This account has already received LSK");
+                        return cb("This account has already received SHIFT");
                     } else {
                         return cb(null);
                     }
@@ -106,7 +111,7 @@ module.exports = function (app) {
             validateCaptcha : function (cb) {
                 simple_recaptcha(app.locals.captcha.privateKey, ip, captcha_response, function (error) {
                     if (error) {
-                        return cb("Captcha validation failed, please try again");
+                        return cb("Captcha validation failed, please try again. " + error);
                     } else {
                         return cb(null);
                     }
@@ -133,7 +138,7 @@ module.exports = function (app) {
             cacheAddress : function (cb) {
                 req.redis.set(address, address, function (error) {
                     if (error) {
-                        return cb("Failed to cache Lisk ID");
+                        return cb("Failed to cache Shift address");
                     } else {
                         return cb(null);
                     }
@@ -142,7 +147,7 @@ module.exports = function (app) {
             sendAddressExpiry : function (cb) {
                 req.redis.send_command("EXPIRE", [address, 60], function (error) {
                     if (error) {
-                        return cb("Failed to send Lisk ID expiry");
+                        return cb("Failed to send Shift address expiry");
                     } else {
                         return cb(null);
                     }
@@ -150,21 +155,30 @@ module.exports = function (app) {
             },
             sendTransaction : function (cb) {
                 var amount      = app.locals.amountToSend * req.fixedPoint;
-                var transaction = lisk.transaction.transfer(
-                    {
-                        recipientId: address,
-                        amount: amount,
-                        passphrase: app.locals.passphrase,
-                    }
-                );
+                var transaction = lisk.transaction.createTransaction(address, amount, app.locals.passphrase);
 
-                const apiClient = new lisk.APIClient(
-                    [ req.lisk ]
-                );
-                apiClient.transactions.broadcast(transaction).then(transaction => {
-                    return cb(null, transaction.data);
-                }).catch(err => {
-                    return cb("Failed to send transaction");
+                request({
+                    url : req.lisk + "/peer/transactions",
+                    method : "POST",
+                    json : true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'nethash': app.locals.nethash,
+                        'broadhash': app.locals.broadhash,
+                        'os': 'shift-js-api',
+                        'version': app.locals.liskVersion,
+                        'minVersion': app.locals.liskMinVersion,
+                        'port': app.locals.port
+                    },
+                    body : {
+                        transaction: transaction
+                    }
+                }, function (error, resp, body) {
+                    if (error || resp.statusCode != 200 || !body.success) {
+                        return cb("Failed to send transaction. " + resp.message || resp.body.error);
+                    } else {
+                        return cb(null, body);
+                    }
                 });
             },
             expireIPs : function (cb) {

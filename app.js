@@ -20,14 +20,12 @@ var app = express();
 client.debug_mode = true;
 
 app.set('strict routing', true);
-app.set("lisk address", "http://" + config.lisk.host + ":" + config.lisk.port);
+app.set("shift address", "http://" + config.lisk.host + ":" + config.lisk.port);
 
-if (config.lisk.port == 8000) {
-    app.set("lisk network", 'mainnet');
-} else if (config.lisk.port == 5000) {
-    app.set("lisk network", 'betanet');
+if (config.lisk.port == 9305) {
+    app.set("shift network", 'mainnet');
 } else {
-    app.set("lisk network", 'testnet');
+    app.set("shift network", 'testnet');
 }
 
 app.locals.host = config.lisk.host;
@@ -42,7 +40,7 @@ app.locals.amountToSend = config.amount;
 app.locals.cacheTTL = config.cacheTTL;
 
 app.use(function (req, res, next) {
-    req.lisk = app.get("lisk address");
+    req.lisk = app.get("shift address");
     return next();
 });
 
