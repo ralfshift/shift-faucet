@@ -23,8 +23,8 @@
             "port" : 9405,
             "nethash": "cba57b868c8571599ad594c6607a77cad60cf0372ecde803004d87e679117c12",
             "broadhash": "cba57b868c8571599ad594c6607a77cad60cf0372ecde803004d87e679117c12",
-            "version": "6.9.2t",
-            "minVersion": "6.9.1"
+            "version": "7.9.0t",
+            "minVersion": "7.0.0"
         },
         "redis" : {
             "host" : "127.0.0.1",

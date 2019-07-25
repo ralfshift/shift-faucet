@@ -61,7 +61,7 @@ module.exports = function (app) {
         var error = null,
             address = req.body.address,
             captcha_response = req.body.captcha_response,
-            ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            ip = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
         if (!address) { error = "Missing Shift address"; }
 
